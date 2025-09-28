@@ -1,0 +1,21 @@
+{
+  "name": "wordpress-cookie-user-auth",
+  "version": "0.0.1",
+  "description": "Authenticate API calls by user using WordPress logged in cookies.",
+  "main": "wordpressAuth.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "WordPress",
+    "Cookies",
+    "User",
+    "Authentication",
+    "Hash",
+    "Validate",
+    "MySQL"
+  ],
+  "author": "Rudy DeSanti",
+  "license": "ISC"
+}
