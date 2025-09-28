@@ -5,7 +5,7 @@
  *         Specifically the wp_users & wp_metadata tables
  */
 
-import { WordpressAuth } from "./wordpressAuth";
+import { WordpressAuth } from "./wordpress-auth";
 
 const wpLoggedInKey = '';
 const wpLoggedInSalt = '';

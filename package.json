@@ -2,7 +2,7 @@
   "name": "wordpress-cookie-user-auth",
   "version": "0.0.1",
   "description": "Authenticate API calls by user using WordPress logged in cookies.",
-  "main": "wordpressAuth.js",
+  "main": "wordpress-auth.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
