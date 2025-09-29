@@ -5,7 +5,7 @@
   "main": "wordpress-auth.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test.js"
   },
   "keywords": [
     "WordPress",
@@ -17,5 +17,8 @@
     "MySQL"
   ],
   "author": "Rudy DeSanti",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "phpunserialize": "^1.3.0"
+  }
 }

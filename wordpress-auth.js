@@ -2,9 +2,15 @@
  * 
  * Author: Rudy DeSanti
  * Authorize your endpoints using Wordpress
+ * 
+ * TODO: add authentication levels (admin vs non-admin)
  */
 import crypto from 'crypto';
+import phpunserialize from 'phpunserialize';
 
+/**
+ * Interface with Wordpress instance. Parse & authenticate cookies against logged in salt & key.
+ */
 export class WordpressAuth{
 
     /**
@@ -30,7 +36,7 @@ export class WordpressAuth{
      * @param {String} loggedInCookie 
      * @returns {WordpressLoggedInCookie}
      */
-    static parseCookie(loggedInCookie){
+    parseCookie(loggedInCookie){
         return new WordpressLoggedInCookie(loggedInCookie, this.wpSalt);
     }
 
@@ -45,10 +51,9 @@ export class WordpressAuth{
     }
 }
 
-
-
-
-
+/**
+ * wordpress_logged_in_[hash] cookie
+ */
 class WordpressLoggedInCookie{
 
     /**
@@ -61,10 +66,14 @@ class WordpressLoggedInCookie{
         else if(typeof wpSalt !== 'string' || !wpSalt)
             throw new TypeError("Invalid WP salt");
 
+        this.wpSalt = wpSalt;
+
+
+
         const cookie = loggedInCookie.split('|');
 
         this.username = cookie[0];
-        this.expiration = cookie[1] === 'string' ? parseFloat(cookie[1]) : undefined;
+        this.expiration = parseFloat(cookie[1]) ?? 0;
         this.token = cookie[2];
         this.hmac = cookie[3];
         this.scheme = cookie[4];
@@ -73,9 +82,8 @@ class WordpressLoggedInCookie{
             this.username === undefined || 
             this.expiration === undefined || 
             this.token === undefined || 
-            this.hmac === undefined || 
-            this.scheme === undefined)
-                throw new Error("Cookie Invalid");
+            this.hmac === undefined)
+                throw new Error("Wordpress logged in cookie is invalid");
     }
 
     /**
@@ -89,21 +97,25 @@ class WordpressLoggedInCookie{
     /**
      * Authenicate the cookie against the given user information
      * @param {number} userId The wordpress ID of the user in [prefix]_users
-     * @param {*} hashedPass The hashed password of the user in [prefix]_users
-     * @param {*} sessionToken The session token of the user in [prefix]_metadata
+     * @param {String} hashedPass The hashed password of the user in [prefix]_users
+     * @param {String} sessionToken The session token of the user in [prefix]_metadata
      * @returns {Boolean} 
      */
-    authenticate(userId, hashedPass, sessionToken){
+    authenticate(userId, hashedPass, sessionTokenString){
         // Validate inputs
         if( 
             typeof userId !== 'number' || 
             typeof hashedPass !== 'string' || 
-            typeof sessionToken !== 'string'
+            typeof sessionTokenString !== 'string'
         )
             return false;
 
+        // Unserialize session tokens string
+        const sessionTokens = phpunserialize(sessionTokenString);
+        const time = parseInt(Date.now()/1000);
+
         // Check if expired
-        if(this.expiration < parseInt(Date.now()/1000))
+        if(this.expiration < time)
             return false;
         
         // Get last 4 of hash from user pass (last 4 since using non-vanilla bcrypt)
@@ -112,7 +124,7 @@ class WordpressLoggedInCookie{
         // Create key - $key = wp_hash( $username . '|' . $pass_frag . '|' . $expiration . '|' . $token, $scheme );
         const key = WordpressAuth.calculateHMAC(
             'md5', 
-            WordpressAuth.wpSalt,
+            this.wpSalt,
             `${this.username}|${passFrag}|${this.expiration}|${this.token}`
         );
 
@@ -126,9 +138,12 @@ class WordpressLoggedInCookie{
         // Compare calculated hash to the one we got
         if(hash !== this.hmac)
             return false;
-        
+    
+        /*** CHECK AGAINST SESSION TOKEN ***/
+
         // Check hashed token against whats stored in the usermeta table under sessions
-        if(!sessionToken.includes(WordpressAuth.hashToken(this.token)))
+        const sessionToken = sessionTokens[WordpressAuth.hashToken(this.token)];
+        if(sessionToken === undefined || typeof sessionToken.expiration !== 'number' || sessionToken.expiration < time)
             return false;
 
         return true;
