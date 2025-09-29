@@ -1,7 +1,7 @@
 {
   "name": "wordpress-cookie-user-auth",
   "version": "0.0.1",
-  "description": "Authenticate API calls by user using WordPress session cookies.",
+  "description": "Authenticate API calls using WordPress session cookies.",
   "main": "wordpress-auth.js",
   "type": "module",
   "scripts": {
