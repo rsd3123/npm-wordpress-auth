@@ -1,7 +1,7 @@
 {
   "name": "wordpress-cookie-user-auth",
   "version": "0.0.1",
-  "description": "Authenticate API calls by user using WordPress logged in cookies.",
+  "description": "Authenticate API calls by user using WordPress session cookies.",
   "main": "wordpress-auth.js",
   "type": "module",
   "scripts": {
@@ -14,11 +14,18 @@
     "Authentication",
     "Hash",
     "Validate",
+    "Token",
+    "Endpoints",
+    "Session",
     "MySQL"
   ],
   "author": "Rudy DeSanti",
   "license": "ISC",
   "dependencies": {
     "phpunserialize": "^1.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rsd3123/npm-wordpress-cookie-user-auth.git"
   }
 }
